@@ -6,6 +6,18 @@ export class DGame {
      */
     this.ctx;
     this.canvas;
+    // this.debug = true
+
+    this.lastTime = 0;
+
+    this.keys = {
+      key: [],
+      mouse: {
+        click: false,
+        x: false,
+        y: false,
+      },
+    };
   }
 
   /**
@@ -15,13 +27,40 @@ export class DGame {
    */
   init(canvasID) {
     this.canvas = document.querySelector(`#${canvasID}`);
+
     this.ctx = this.canvas.getContext("2d");
 
     this.canvas.style = "border: 1px solid black";
     this.canvas.parentElement.style = "margin: 0";
     this.canvas.width = 1600;
     this.canvas.height = 800;
+
     return this.ctx;
+  }
+
+  controlls() {
+    this.canvas.setAttribute("tabindex", 0);
+
+    this.canvas.addEventListener("keydown", (ev) => {
+      if (!this.keys.key[ev.keyCode]) this.keys.key[ev.keyCode] = true;
+    });
+    this.canvas.addEventListener("keyup", (ev) => {
+      if (this.keys.key[ev.keyCode]) this.keys.key[ev.keyCode] = false;
+    });
+    this.canvas.addEventListener("mousedown", (ev) => {
+      this.keys.mouse.click = true;
+    });
+    this.canvas.addEventListener("mouseup", (ev) => {
+      this.keys.mouse.click = false;
+    });
+    this.canvas.addEventListener("mousemove", (ev) => {
+      this.keys.mouse.x = ev.offsetX;
+      this.keys.mouse.y = ev.offsetY;
+    });
+  }
+
+  drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
+    this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
   }
 
   /**
@@ -33,6 +72,10 @@ export class DGame {
     this.ctx.beginPath();
     this.ctx.arc(x, y, r, 0, Math.PI * 2);
     this.ctx.stroke();
+  }
+
+  clearRect() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   /**
@@ -123,3 +166,23 @@ export class DGame {
     console.log("Hello World");
   }
 }
+
+//
+
+// --- this is my current game loop ---
+//
+// requestAnimationFrame(gameLoop);
+//
+// let lastTime = 0;
+// function gameLoop(timestamp) {
+//   const deltaTime = +(timestamp - lastTime).toFixed(2);
+//   lastTime = timestamp;
+//
+//   update(deltaTime);
+//
+//   draw(deltaTime);
+//
+//   requestAnimationFrame(gameLoop);
+// }
+//
+// --- ||| ---
