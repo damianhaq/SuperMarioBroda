@@ -8,6 +8,8 @@ export class DGame {
     this.scaleFactor = 2;
     this.canvas.width = width;
     this.canvas.height = height;
+    // this.canvas.width = width * this.scaleFactor;
+    // this.canvas.height = height * this.scaleFactor;
     // this.canvas.style.width = width + "px";
     // this.canvas.style.height = height + "px";
     this.canvas.style.border = "1px solid black";
@@ -46,8 +48,8 @@ export class DGame {
       this.keys.mouse.click = false;
     });
     this.canvas.addEventListener("mousemove", (ev) => {
-      this.keys.mouse.x = ev.offsetX;
-      this.keys.mouse.y = ev.offsetY;
+      this.keys.mouse.x = Math.round(ev.offsetX / this.scaleFactor);
+      this.keys.mouse.y = Math.round(ev.offsetY / this.scaleFactor);
     });
   }
 
@@ -157,6 +159,10 @@ export class DGame {
   helloWorld() {
     console.log("Hello World");
   }
+}
+
+export class Sprite {
+  constructor(x, y, w, h) {}
 }
 
 //
