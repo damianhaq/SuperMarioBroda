@@ -1,12 +1,21 @@
 export class DGame {
-  constructor() {
+  constructor(canvasID, width, height) {
     /**
      * @type {CanvasRenderingContext2D}
      * @type {HTMLCanvasElement}
      */
-    this.ctx;
-    this.canvas;
-    // this.debug = true
+    this.canvas = document.querySelector(`#${canvasID}`);
+    this.scaleFactor = 2;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    // this.canvas.style.width = width + "px";
+    // this.canvas.style.height = height + "px";
+    this.canvas.style.border = "1px solid black";
+    this.canvas.parentElement.style = "margin: 0";
+
+    this.ctx = this.canvas.getContext("2d");
+    this.ctx.scale(this.scaleFactor, this.scaleFactor);
+    this.ctx.imageSmoothingEnabled = false;
 
     this.lastTime = 0;
 
@@ -20,29 +29,12 @@ export class DGame {
     };
   }
 
-  /**
-   *
-   * @param {string} canvasID string
-   * @returns {CanvasRenderingContext2D}
-   */
-  init(canvasID) {
-    this.canvas = document.querySelector(`#${canvasID}`);
-
-    this.ctx = this.canvas.getContext("2d");
-
-    this.canvas.style = "border: 1px solid black";
-    this.canvas.parentElement.style = "margin: 0";
-    this.canvas.width = 1600;
-    this.canvas.height = 800;
-
-    return this.ctx;
-  }
-
   controlls() {
     this.canvas.setAttribute("tabindex", 0);
 
     this.canvas.addEventListener("keydown", (ev) => {
       if (!this.keys.key[ev.keyCode]) this.keys.key[ev.keyCode] = true;
+      console.log(ev.keyCode);
     });
     this.canvas.addEventListener("keyup", (ev) => {
       if (this.keys.key[ev.keyCode]) this.keys.key[ev.keyCode] = false;
