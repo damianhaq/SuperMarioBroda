@@ -12,25 +12,27 @@ image.src = "BigSpritev7.png";
 const player = {
   x: 0,
   y: 0,
-  speed: 0,
-  maxSpeed: 2,
+  // prędkość
+  velocityX: 0,
+  velocityY: 0,
   width: spriteSheetData.elfM.idle.w,
   height: spriteSheetData.elfM.idle.h,
 };
 
 function update(deltaTime) {
-  if (dg.keys.key[68]) player.x += 1;
-  if (dg.keys.key[65]) player.x -= 1;
+  // Player movement velocity
+  if (dg.keys.key[65]) {
+    player.velocityX = -0.1;
+  } else if (dg.keys.key[68]) {
+    player.velocityX = 0.1;
+  } else player.velocityX = 0;
 
-  // Gravitation
-  const acc = 0.05;
+  // gravitation velocity
+  player.velocityY = 0.1;
 
-  // apply acc to speed
-  if (player.speed < player.maxSpeed)
-    player.speed = +(player.speed + acc * deltaTime).toFixed(2);
-
-  // moving y-axis
-  // player.y = player.y + player.speed;
+  // apply velocity
+  player.x += +(player.velocityX * deltaTime).toFixed(2);
+  player.y += +(player.velocityY * deltaTime).toFixed(2);
 }
 
 function draw(deltaTime) {
