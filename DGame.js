@@ -1,10 +1,10 @@
 export class DGame {
-  constructor(canvasID, width, height) {
-    /**
-     * @type {CanvasRenderingContext2D}
-     * @type {HTMLCanvasElement}
-     */
-    this.canvas = document.querySelector(`#${canvasID}`);
+  constructor() {
+    this.canvas = document.querySelector("#canvas");
+    this.ctx = this.canvas.getContext("2d");
+  }
+
+  init(width, height) {
     this.scaleFactor = 2;
     this.canvas.width = width;
     this.canvas.height = height;
@@ -14,11 +14,11 @@ export class DGame {
     // this.canvas.style.height = height + "px";
     this.canvas.style.border = "1px solid black";
     this.canvas.parentElement.style = "margin: 0";
-
-    this.ctx = this.canvas.getContext("2d");
     this.ctx.scale(this.scaleFactor, this.scaleFactor);
     this.ctx.imageSmoothingEnabled = false;
+  }
 
+  controlls() {
     this.lastTime = 0;
 
     this.keys = {
@@ -29,9 +29,6 @@ export class DGame {
         y: false,
       },
     };
-  }
-
-  controlls() {
     this.canvas.setAttribute("tabindex", 0);
 
     this.canvas.addEventListener("keydown", (ev) => {
@@ -161,8 +158,66 @@ export class DGame {
   }
 }
 
-export class Sprite {
-  constructor(x, y, w, h) {}
+export class Platform extends DGame {
+  constructor(x, y, tilesWidth, tilesHeight, image, imageData) {
+    super();
+    this.x = x;
+    this.y = y;
+    this.tilesWidth = tilesWidth;
+    this.tilesHeight = tilesHeight;
+    this.image = image;
+    this.imageData = imageData;
+  }
+
+  draw() {
+    for (let i = 0; i < this.tilesWidth; i++) {
+      if (i === 0) {
+        // first tile
+
+        this.drawImage(
+          this.image,
+          this.imageData.greenPlatform.left.x,
+          this.imageData.greenPlatform.left.y,
+          this.imageData.greenPlatform.left.width,
+          this.imageData.greenPlatform.left.height,
+          this.x,
+          this.y,
+          this.imageData.greenPlatform.left.width,
+          this.imageData.greenPlatform.left.height
+        );
+      } else if (i === this.tilesWidth - 1) {
+        // last tile
+        this.drawImage(
+          this.image,
+          this.imageData.greenPlatform.right.x,
+          this.imageData.greenPlatform.right.y,
+          this.imageData.greenPlatform.right.width,
+          this.imageData.greenPlatform.right.height,
+          this.x + i * 16,
+          this.y,
+          this.imageData.greenPlatform.right.width,
+          this.imageData.greenPlatform.right.height
+        );
+      } else {
+        this.drawImage(
+          this.image,
+          this.imageData.greenPlatform.middle.x,
+          this.imageData.greenPlatform.middle.y,
+          this.imageData.greenPlatform.middle.width,
+          this.imageData.greenPlatform.middle.height,
+          this.x + i * 16,
+          this.y,
+          this.imageData.greenPlatform.middle.width,
+          this.imageData.greenPlatform.middle.height
+        );
+      }
+
+      // middle Tiles
+    }
+
+    // hitbox
+    // dg.drawRect(this.x, this.y, this.width, this.height);
+  }
 }
 
 //

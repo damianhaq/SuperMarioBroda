@@ -1,11 +1,16 @@
-import { DGame } from "./DGame.js";
+import { DGame, Platform } from "./DGame.js";
 import { spriteSheetData } from "./bigSpritev7data.js";
+import { terrainData } from "./terrainData.js";
 
-const dg = new DGame("canvas", 1600, 800);
+const dg = new DGame();
+dg.init(1600, 800);
+console.log(dg);
 dg.controlls();
 
-const image = new Image(); // Using optional size for image
-// image.onload = drawImageActualSize; // Draw when image has loaded
+const image = new Image();
+const imageTerrain = new Image();
+
+imageTerrain.src = "Terrain(16x16).png";
 image.src = "BigSpritev7.png";
 
 const player = {
@@ -31,49 +36,33 @@ const player = {
     }
     return true;
   },
+  movement: function () {
+    // Player movement velocity
+    if (dg.keys.key[65]) {
+      this.currAccX = this.accX;
+      if (this.velocityX > -this.maxVelocityX)
+        this.velocityX = +(this.velocityX - this.currAccX).toFixed(2);
+    } else if (dg.keys.key[68]) {
+      this.currAccX = this.accX;
+      if (this.velocityX < this.maxVelocityX)
+        this.velocityX = +(this.velocityX + this.currAccX).toFixed(2);
+    } else {
+      if (this.velocityX > 0) {
+        this.velocityX = +(this.velocityX - this.accX).toFixed(2);
+      } else if (this.velocityX < 0) {
+        this.velocityX = +(this.velocityX + this.accX).toFixed(2);
+      } else this.velocityX = 0;
+    }
+  },
 };
 
-const testPlatform = {
-  x: 10,
-  y: 380,
-  width: 1000,
-  height: 10,
-  draw: function () {
-    dg.drawRect(this.x, this.y, this.width, this.height);
-  },
-};
-const testPlatform2 = {
-  x: 50,
-  y: 333,
-  width: 1000,
-  height: 10,
-  draw: function () {
-    dg.drawRect(this.x, this.y, this.width, this.height);
-  },
-};
+const platform = new Platform(50, 333, 15, 1, imageTerrain, terrainData);
 
 const platforms = [];
-platforms.push(testPlatform2);
-platforms.push(testPlatform);
-console.log(platforms);
+platforms.push(platform);
 
 function update(deltaTime) {
-  // Player movement velocity
-  if (dg.keys.key[65]) {
-    player.currAccX = player.accX;
-    if (player.velocityX > -player.maxVelocityX)
-      player.velocityX = +(player.velocityX - player.currAccX).toFixed(2);
-  } else if (dg.keys.key[68]) {
-    player.currAccX = player.accX;
-    if (player.velocityX < player.maxVelocityX)
-      player.velocityX = +(player.velocityX + player.currAccX).toFixed(2);
-  } else {
-    if (player.velocityX > 0) {
-      player.velocityX = +(player.velocityX - player.accX).toFixed(2);
-    } else if (player.velocityX < 0) {
-      player.velocityX = +(player.velocityX + player.accX).toFixed(2);
-    } else player.velocityX = 0;
-  }
+  player.movement();
 
   // gravitation velocity
   let collide = false;
@@ -93,7 +82,6 @@ function update(deltaTime) {
   // apply acc to velocity
   if (player.velocityY < player.maxVelocityY)
     player.velocityY = +(player.velocityY + player.currAccY).toFixed(2);
-  console.log(player.velocityX);
 
   // apply velocity to position
   player.x += +(player.velocityX * (deltaTime / 10)).toFixed(2);
