@@ -4,7 +4,16 @@ export class DGame {
     this.ctx = this.canvas.getContext("2d");
   }
 
-  init(width, height) {
+  // setCamera(x, y) {
+  //   this.camera = {
+  //     x: x - this.canvas.width / 4,
+  //     y: y - this.canvas.height / 4,
+  //   };
+  //   // console.log(this.camera.y);
+  // }
+
+  init(width, height, cameraInstance) {
+    this.camera = cameraInstance;
     this.scaleFactor = 2;
     this.canvas.width = width;
     this.canvas.height = height;
@@ -51,7 +60,18 @@ export class DGame {
   }
 
   drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-    this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+    // console.log(dx, dy, this.camera.x, this.camera.y);
+    this.ctx.drawImage(
+      image,
+      sx,
+      sy,
+      sWidth,
+      sHeight,
+      dx - this.camera?.camera.x,
+      dy - this.camera?.camera.y,
+      dWidth,
+      dHeight
+    );
   }
 
   /**
@@ -61,7 +81,13 @@ export class DGame {
    */
   drawCircle(x, y, r) {
     this.ctx.beginPath();
-    this.ctx.arc(x, y, r, 0, Math.PI * 2);
+    this.ctx.arc(
+      x - this.camera?.camera.x,
+      y - this.camera?.camera.y,
+      r,
+      0,
+      Math.PI * 2
+    );
     this.ctx.stroke();
   }
 
@@ -78,7 +104,7 @@ export class DGame {
    */
   drawRect(x, y, w, h) {
     this.ctx.beginPath();
-    this.ctx.rect(x, y, w, h);
+    this.ctx.rect(x - this.camera?.camera.x, y - this.camera?.camera.y, w, h);
     this.ctx.stroke();
   }
 
@@ -89,7 +115,11 @@ export class DGame {
    * @param {string} text
    */
   drawText(x, y, text) {
-    this.ctx.fillText(text, x, y);
+    this.ctx.fillText(
+      text,
+      x - this.camera?.camera.x,
+      y - this.camera?.camera.y
+    );
   }
 
   /**
@@ -101,8 +131,8 @@ export class DGame {
    */
   drawLine(x, y, tox, toy) {
     this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
-    this.ctx.lineTo(tox, toy);
+    this.ctx.moveTo(x - this.camera?.camera.x, y - this.camera?.camera.y);
+    this.ctx.lineTo(tox - this.camera?.camera.x, toy - this.camera?.camera.y);
     this.ctx.stroke();
   }
 
@@ -158,15 +188,44 @@ export class DGame {
   }
 }
 
-export class Platform extends DGame {
-  constructor(x, y, tilesWidth, tilesHeight, image, imageData) {
-    super();
+export class Camera {
+  constructor() {
+    this.camera = {
+      x: 0,
+      y: 0,
+    };
+  }
+
+  setCamera(x, y, canvasWidth, canvasHeight) {
+    this.camera = {
+      x: x - canvasWidth / 4,
+      y: y - canvasHeight / 4,
+    };
+  }
+}
+
+export class Platform {
+  constructor(
+    x,
+    y,
+    tilesWidth,
+    tilesHeight,
+    image,
+    leftTileData,
+    middleTileData,
+    rightTileData,
+    dgInstance
+  ) {
+    this.dg = dgInstance;
+
     this.x = x;
     this.y = y;
     this.tilesWidth = tilesWidth;
     this.tilesHeight = tilesHeight;
     this.image = image;
-    this.imageData = imageData;
+    this.leftTileData = leftTileData;
+    this.middleTileData = middleTileData;
+    this.rightTileData = rightTileData;
   }
 
   draw() {
@@ -174,41 +233,42 @@ export class Platform extends DGame {
       if (i === 0) {
         // first tile
 
-        this.drawImage(
+        // PROBLEM JEST TAKI ŻE DRAWIMAGE OD PLATFORMS NIE WIDZI ZMIENNYCH CAMERA ;/
+        this.dg.drawImage(
           this.image,
-          this.imageData.greenPlatform.left.x,
-          this.imageData.greenPlatform.left.y,
-          this.imageData.greenPlatform.left.width,
-          this.imageData.greenPlatform.left.height,
+          this.leftTileData.x,
+          this.leftTileData.y,
+          this.leftTileData.width,
+          this.leftTileData.height,
           this.x,
           this.y,
-          this.imageData.greenPlatform.left.width,
-          this.imageData.greenPlatform.left.height
+          this.leftTileData.width,
+          this.leftTileData.height
         );
       } else if (i === this.tilesWidth - 1) {
         // last tile
-        this.drawImage(
+        this.dg.drawImage(
           this.image,
-          this.imageData.greenPlatform.right.x,
-          this.imageData.greenPlatform.right.y,
-          this.imageData.greenPlatform.right.width,
-          this.imageData.greenPlatform.right.height,
+          this.rightTileData.x,
+          this.rightTileData.y,
+          this.rightTileData.width,
+          this.rightTileData.height,
           this.x + i * 16,
           this.y,
-          this.imageData.greenPlatform.right.width,
-          this.imageData.greenPlatform.right.height
+          this.rightTileData.width,
+          this.rightTileData.height
         );
       } else {
-        this.drawImage(
+        this.dg.drawImage(
           this.image,
-          this.imageData.greenPlatform.middle.x,
-          this.imageData.greenPlatform.middle.y,
-          this.imageData.greenPlatform.middle.width,
-          this.imageData.greenPlatform.middle.height,
+          this.middleTileData.x,
+          this.middleTileData.y,
+          this.middleTileData.width,
+          this.middleTileData.height,
           this.x + i * 16,
           this.y,
-          this.imageData.greenPlatform.middle.width,
-          this.imageData.greenPlatform.middle.height
+          this.middleTileData.width,
+          this.middleTileData.height
         );
       }
 
@@ -216,7 +276,12 @@ export class Platform extends DGame {
     }
 
     // hitbox
-    // dg.drawRect(this.x, this.y, this.width, this.height);
+    this.dg.drawRect(
+      this.x,
+      this.y,
+      this.tilesWidth * 16,
+      this.tilesHeight * 16
+    );
   }
 }
 

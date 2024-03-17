@@ -1,10 +1,14 @@
-import { DGame, Platform } from "./DGame.js";
+import { Camera, DGame, Platform } from "./DGame.js";
 import { spriteSheetData } from "./bigSpritev7data.js";
 import { terrainData } from "./terrainData.js";
 
+// dg.init and camera need canvas size
+const canvasWidth = 1600;
+const canvasHeight = 800;
+
+const camera = new Camera();
 const dg = new DGame();
-dg.init(1600, 800);
-console.log(dg);
+dg.init(canvasWidth, canvasHeight, camera);
 dg.controlls();
 
 const image = new Image();
@@ -14,8 +18,8 @@ imageTerrain.src = "Terrain(16x16).png";
 image.src = "BigSpritev7.png";
 
 const player = {
-  x: 0,
-  y: 0,
+  x: 100,
+  y: 10,
   // prędkość
   velocityX: 0,
   velocityY: 0,
@@ -28,10 +32,16 @@ const player = {
   width: spriteSheetData.elfM.idle.w,
   height: spriteSheetData.elfM.idle.h,
   isCollide: function (sprite) {
-    if (sprite.x + sprite.width < this.x || this.x + this.width < sprite.x) {
+    if (
+      sprite.x + sprite.tilesWidth * 16 < this.x ||
+      this.x + this.width < sprite.x
+    ) {
       return false;
     }
-    if (sprite.y + sprite.height < this.y || this.y + this.height < sprite.y) {
+    if (
+      sprite.y + sprite.tilesHeight * 16 < this.y ||
+      this.y + this.height < sprite.y
+    ) {
       return false;
     }
     return true;
@@ -54,9 +64,34 @@ const player = {
       } else this.velocityX = 0;
     }
   },
+  draw: function () {
+    dg.drawImage(
+      image,
+      spriteSheetData.elfM.idle.x,
+      spriteSheetData.elfM.idle.y,
+      spriteSheetData.elfM.idle.w,
+      spriteSheetData.elfM.idle.h,
+      player.x,
+      player.y,
+      player.width,
+      player.height
+    );
+    // hitbox
+    dg.drawRect(this.x, this.y, this.width, this.height);
+  },
 };
 
-const platform = new Platform(50, 333, 15, 1, imageTerrain, terrainData);
+const platform = new Platform(
+  10,
+  333,
+  15,
+  1,
+  imageTerrain,
+  terrainData.greenPlatform.left,
+  terrainData.greenPlatform.middle,
+  terrainData.greenPlatform.right,
+  dg
+);
 
 const platforms = [];
 platforms.push(platform);
@@ -86,29 +121,23 @@ function update(deltaTime) {
   // apply velocity to position
   player.x += +(player.velocityX * (deltaTime / 10)).toFixed(2);
   player.y += +(player.velocityY * (deltaTime / 10)).toFixed(2);
+
+  camera.setCamera(player.x, player.y, canvasWidth, canvasHeight);
 }
 
 function draw(deltaTime) {
   dg.clearRect();
 
-  platforms.forEach((el) => el.draw());
+  dg.drawCircle(100, 100, 50);
+  dg.drawImage(imageTerrain, 0, 0, 16, 16, 100, 100, 16, 16);
 
-  dg.drawImage(
-    image,
-    spriteSheetData.elfM.idle.x,
-    spriteSheetData.elfM.idle.y,
-    spriteSheetData.elfM.idle.w,
-    spriteSheetData.elfM.idle.h,
-    player.x,
-    player.y,
-    player.width,
-    player.height
-  );
+  platforms.forEach((el) => el.draw());
+  player.draw();
 
   dg.drawText(
     10,
     10,
-    `mouse x:${dg.keys.mouse.x} y:${dg.keys.mouse.y} click:${dg.keys.mouse.click} key:${dg.keys.key}`
+    `mouse x:${dg.keys.mouse.x} y:${dg.keys.mouse.y} click:${dg.keys.mouse.click} key:${dg.keys.key} cam: ${dg.camera.y}`
   );
 
   dg.drawText(
